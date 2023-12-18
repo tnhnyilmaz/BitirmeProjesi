@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "934910496388",
+    "project_id": "egitim-sorun-project",
+    "storage_bucket": "egitim-sorun-project.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:934910496388:android:d49674c57b18690dc2fcd1",
+        "android_client_info": {
+          "package_name": "com.example.bitirme_egitim_sorunlari"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDJJo8DWfHKFFv_MOZOkaxblvOsq0TEa3I"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
