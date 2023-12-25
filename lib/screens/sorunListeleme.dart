@@ -3,6 +3,7 @@ import 'package:bitirme_egitim_sorunlari/compenents/generalAppbar.dart';
 import 'package:bitirme_egitim_sorunlari/const/textStyle.dart';
 import 'package:bitirme_egitim_sorunlari/screens/a.dart';
 import 'package:bitirme_egitim_sorunlari/services/sorunListeleme.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -29,9 +30,17 @@ class _SorunListelemeState extends State<SorunListeleme> {
   }
 
   Future<void> _getSorunlar() async {
-    List<Map<String, dynamic>> sorunlar = await _firestoreService.getSorunlar();
+    QuerySnapshot<Map<String, dynamic>> querySnapshot =
+        await _firestoreService.getSorunlar();
+    List<Map<String, dynamic>> sorunlar = querySnapshot.docs.map((doc) {
+      Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
+      data['documentID'] = doc.id; // Belge ID'sini ekle
+      return data;
+    }).toList();
+
     setState(() {
       this.sorunlar = sorunlar;
+      _isExpandedList = List.generate(sorunlar.length, (index) => false);
     });
   }
 
@@ -56,7 +65,8 @@ class _SorunListelemeState extends State<SorunListeleme> {
                       children: [
                         Container(
                           width: width,
-                          height: height * 0.13,
+                          height: styleTextProject.calculateContainerHeight(
+                              sorunlar[index]['sorunMetni']),
                           decoration: BoxDecoration(
                               color: Colors.amber,
                               borderRadius: _isExpandedList[index]
@@ -109,14 +119,16 @@ class _SorunListelemeState extends State<SorunListeleme> {
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
                                 GestureDetector(
-                                  onTap: () {
+                                  onTap: () async {
+                                    String selectedSorunID =
+                                        sorunlar[index]['documentID'];
                                     Provider.of<SelectedSorunProvider>(context,
                                             listen: false)
                                         .setSelectedSorun(SorunModel(
+                                            documentID: selectedSorunID,
+                                            kullaniciID: "2",
                                             sorunMetni: sorunlar[index]
-                                                ['sorunMetni'],
-                                            documentID: '',
-                                            kullaniciID: "2"));
+                                                ['sorunMetni']));
                                     Navigator.pushNamed(
                                       context,
                                       '/SorunCozum',
@@ -135,10 +147,13 @@ class _SorunListelemeState extends State<SorunListeleme> {
                                 ),
                                 GestureDetector(
                                   onTap: () {
+                                    print("PRİNTTTTTTT: ${sorunlar[index]}");
+                                    String selectedSorunID =
+                                        sorunlar[index]['documentID'];
                                     Provider.of<SelectedSorunProvider>(context,
                                             listen: false)
                                         .setSelectedSorun(SorunModel(
-                                            documentID: "",
+                                            documentID: selectedSorunID,
                                             kullaniciID: "2",
                                             sorunMetni: sorunlar[index]
                                                 ['sorunMetni']));
@@ -165,5 +180,13 @@ class _SorunListelemeState extends State<SorunListeleme> {
                 ));
           },
         ));
+  }
+
+  double _calculateContainerHeight(String metin) {
+    // Burada isteğinize göre metnin uzunluğuna bağlı olarak bir hesaplama yapabilirsiniz.
+    // Aşağıdaki örnekte, metin uzunluğuna göre bir katsayı kullanılarak bir hesaplama yapılıyor.
+    // Siz kendi ihtiyaçlarınıza uygun bir formül kullanabilirsiniz.
+    double katsayi = 0.7; // Örnek bir katsayı
+    return metin.length * katsayi;
   }
 }

@@ -1,5 +1,7 @@
+import 'package:bitirme_egitim_sorunlari/Provider/AuthProvider.dart';
 import 'package:bitirme_egitim_sorunlari/compenents/anaEkranContainer.dart';
 import 'package:bitirme_egitim_sorunlari/compenents/topBackgorund.dart';
+import 'package:bitirme_egitim_sorunlari/services/auth_Service.dart';
 import 'package:flutter/material.dart';
 
 class AnaEkran extends StatelessWidget {
@@ -7,6 +9,8 @@ class AnaEkran extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    AuthService _authService = AuthService();
+    KullaniciProvider kullaniciProvider = KullaniciProvider();
     return Scaffold(
       backgroundColor: Colors.white,
       body: Column(

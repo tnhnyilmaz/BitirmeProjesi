@@ -1,4 +1,3 @@
-import 'package:bitirme_egitim_sorunlari/screens/a.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class FirestoreService {
@@ -6,11 +5,15 @@ class FirestoreService {
 
   // Sorunları aldığımız ekrandaki verilerimizi firestore database'ye kaydetmek için kullandığımız method
 
-  Future<void> addSorun(
-      String kullaniciID, String sorunMetni, String customDocumentId) async {
+  Future<QuerySnapshot<Map<String, dynamic>>> getSorunlar() async {
+    // Firestore'dan sorunları al ve QuerySnapshot'ı döndür
+    return await FirebaseFirestore.instance.collection("sorunlar").get();
+  }
+
+  Future<void> addSorun(String kullaniciID, String sorunMetni) async {
     // Belirlediğiniz customDocumentId kullanarak bir referans oluşturun
     DocumentReference docRef =
-        FirebaseFirestore.instance.collection("sorunlar").doc(customDocumentId);
+        FirebaseFirestore.instance.collection("sorunlar").doc();
 
     // Oluşturduğunuz referans ile veriyi ekleyin
     await docRef.set({
@@ -19,18 +22,48 @@ class FirestoreService {
     });
   }
 
-  Future<List<Map<String, dynamic>>> getSorunlar() async {
-    QuerySnapshot querySnapshot =
-        await FirebaseFirestore.instance.collection("sorunlar").get();
+  Future<List<String>> getDocumentIds() async {
+    try {
+      QuerySnapshot querySnapshot =
+          await FirebaseFirestore.instance.collection('sorunlar').get();
 
-    return querySnapshot.docs
-        .map<Map<String, dynamic>>((doc) => doc.data() as Map<String, dynamic>)
-        .toList();
+      // Belirli bir koleksiyondaki belgelerin ID'lerine erişme
+      List<String> documentIds =
+          querySnapshot.docs.map((doc) => doc.id).toList();
+
+      return documentIds;
+    } catch (e) {
+      print('Error getting documents: $e');
+      return [];
+    }
+  }
+
+  Future<List<Map<String, dynamic>>> getCozum(String sorunID) async {
+    try {
+      QuerySnapshot<Map<String, dynamic>> querySnapshot =
+          await FirebaseFirestore.instance
+              .collection("sorunlar")
+              .doc(sorunID)
+              .collection("cozumler")
+              .get();
+
+      return querySnapshot.docs
+          .map<Map<String, dynamic>>(
+              (doc) => doc.data() as Map<String, dynamic>)
+          .toList();
+    } catch (e) {
+      // Hata durumunda burada işlemler yapabilirsiniz.
+      print("getCozum Hatası: $e");
+      return []; // Boş liste veya isteğe bağlı başka bir değer dönebilirsiniz.
+    }
   }
 
   Future<void> addToCozum(
       String kullaniciId, String cozumMetni, String sorunID) async {
-    final docSorun = FirebaseFirestore.instance.collection("cozumler");
+    final docSorun = FirebaseFirestore.instance
+        .collection("sorunlar")
+        .doc(sorunID)
+        .collection("cozumler");
     try {
       await docSorun.add({
         'kullaniciID': kullaniciId,
@@ -42,6 +75,16 @@ class FirestoreService {
       // Hata durumunda bir şeyler yapabilirsiniz.
       print('Firestore hatası: $e');
     }
+  }
+
+  Future<String> getDocId(String endpoint) async {
+    DocumentSnapshot document = await FirebaseFirestore.instance
+        .collection('sorunlar')
+        .doc(endpoint)
+        .get();
+    String selectedSorunID = document.id;
+    print("SEÇİLEN SORUNID:  ${selectedSorunID}");
+    return selectedSorunID;
   }
 
   // Tıkladığımız soruna ait olan çözümleri getiren method
@@ -65,65 +108,5 @@ class FirestoreService {
     return querySnapshot.docs
         .map<Map<String, dynamic>>((doc) => doc.data() as Map<String, dynamic>)
         .toList();
-  }
-}
-
-class SorunService {
-  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
-
-  Future<SorunModel?> getSorun(String belgeID) async {
-    try {
-      DocumentSnapshot snapshot =
-          await _firestore.collection('sorunlar').doc(belgeID).get();
-
-      if (snapshot.exists) {
-        Map<String, dynamic> data = snapshot.data() as Map<String, dynamic>;
-        return SorunModel.fromFirestore(data, snapshot.id);
-      } else {
-        print("Belge bulunamadı.");
-        return null;
-      }
-    } catch (e) {
-      print("Firestore hatası: $e");
-      return null;
-    }
-  }
-}
-
-class CozumService {
-  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
-
-  Future<void> addToCozum(
-      String kullaniciID, String cozumMetni, String sorunID) async {
-    try {
-      await _firestore.collection("cozumler").add({
-        'kullaniciID': kullaniciID,
-        'cozumMetni': cozumMetni,
-        'sorunID': sorunID,
-      });
-    } catch (e) {
-      print('Firestore hatası: $e');
-    }
-  }
-
-  Future<List<SorunModel>> getCozumlerForSorun(String sorunID) async {
-    try {
-      // Veritabanından çözümleri al
-      QuerySnapshot querySnapshot = await _firestore
-          .collection("cozumler")
-          .where('sorunID', isEqualTo: sorunID)
-          .get();
-
-      // QuerySnapshot içindeki her belgeyi SorunModel'e dönüştür
-      List<SorunModel> cozumler = querySnapshot.docs.map((doc) {
-        Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
-        return SorunModel.fromFirestore(data, doc.id);
-      }).toList();
-
-      return cozumler;
-    } catch (e) {
-      print("Firestore hatası: $e");
-      return [];
-    }
   }
 }

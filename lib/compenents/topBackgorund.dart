@@ -1,4 +1,8 @@
+import 'package:bitirme_egitim_sorunlari/Provider/AuthProvider.dart';
+import 'package:bitirme_egitim_sorunlari/model/kullanicilar.dart';
+import 'package:bitirme_egitim_sorunlari/services/auth_Service.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 class TopBackground extends StatelessWidget {
   const TopBackground({super.key});
@@ -7,6 +11,11 @@ class TopBackground extends StatelessWidget {
   Widget build(BuildContext context) {
     double width = MediaQuery.of(context).size.width;
     double height = MediaQuery.of(context).size.height;
+    AuthService _authService = AuthService();
+
+    Kullanicilar? kullanici =
+        Provider.of<KullaniciProvider>(context).kullanicilar;
+
     return Stack(
       children: [
         Container(
@@ -35,12 +44,14 @@ class TopBackground extends StatelessWidget {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                const Text(
-                  "Merhaba Tuna,",
+                Text(
+                  "Merhaba ${kullanici?.isim ?? ''},",
                   style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold),
                 ),
                 IconButton(
-                    onPressed: () {},
+                    onPressed: () {
+                      _authService.signOut(context);
+                    },
                     icon: const Icon(
                       Icons.logout,
                       size: 30,

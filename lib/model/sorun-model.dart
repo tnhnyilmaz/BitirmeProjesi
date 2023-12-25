@@ -1,16 +1,25 @@
-class Sorun {
-  String sorunID;
+class SorunModel {
+  final String documentID;
   final String sorunMetni;
   final String kullaniciID;
 
-  Sorun({
-    this.sorunID = '',
+  SorunModel({
+    required this.documentID,
     required this.sorunMetni,
     required this.kullaniciID,
   });
+
+  factory SorunModel.fromMap(Map<String, dynamic> map) {
+    return SorunModel(
+      documentID: map['documentID'] ?? '', // Boş gelirse varsayılan değeri atar
+      sorunMetni: map['sorunMetni'] ?? '',
+      kullaniciID: map['kullaniciID'] ?? '',
+    );
+  }
+
   Map<String, dynamic> toJson() => {
-        'sorunID': sorunID,
+        'documentID': documentID,
         'sorunMetni': sorunMetni,
-        'kullaniciID': kullaniciID
+        'kullaniciID': kullaniciID,
       };
 }

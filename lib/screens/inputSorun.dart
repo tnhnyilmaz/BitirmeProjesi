@@ -86,11 +86,11 @@ class _SorunInputState extends State<SorunInput> {
     String kullaniciID = "2";
 
     // FirestoreService sınıfını kullanarak Firestore'a ekleme işlemi
-    FirestoreService().addSorun(kullaniciID, s1, docID());
-    FirestoreService().addSorun(kullaniciID, s2, docID());
-    FirestoreService().addSorun(kullaniciID, s3, docID());
-    FirestoreService().addSorun(kullaniciID, s4, docID());
-    FirestoreService().addSorun(kullaniciID, s5, docID());
+    FirestoreService().addSorun(kullaniciID, s1);
+    FirestoreService().addSorun(kullaniciID, s2);
+    FirestoreService().addSorun(kullaniciID, s3);
+    FirestoreService().addSorun(kullaniciID, s4);
+    FirestoreService().addSorun(kullaniciID, s5);
     // Ekleme işleminden sonra text alanlarını temizle
     sorun1.clear();
     sorun2.clear();
@@ -103,5 +103,13 @@ class _SorunInputState extends State<SorunInput> {
     String sorunName = "sorunid_$sayac";
     sayac++;
     return sorunName;
+  }
+
+  double _calculateContainerHeight(String metin) {
+    // Burada isteğinize göre metnin uzunluğuna bağlı olarak bir hesaplama yapabilirsiniz.
+    // Aşağıdaki örnekte, metin uzunluğuna göre bir katsayı kullanılarak bir hesaplama yapılıyor.
+    // Siz kendi ihtiyaçlarınıza uygun bir formül kullanabilirsiniz.
+    double katsayi = 0.7; // Örnek bir katsayı
+    return metin.length * katsayi;
   }
 }

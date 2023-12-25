@@ -10,4 +10,12 @@ class SelectedSorunProvider extends ChangeNotifier {
     _selectedSorun = sorun;
     notifyListeners();
   }
+
+  String? _selectedSorunDocumentID;
+  String? get selectedSorunDocumentID => _selectedSorunDocumentID;
+
+  void setSelectedSorunDocumentID(String documentID) {
+    _selectedSorunDocumentID = documentID;
+    notifyListeners();
+  }
 }

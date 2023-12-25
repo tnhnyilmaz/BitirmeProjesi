@@ -18,7 +18,7 @@ class _SorunListesiState extends State<SorunListesi> {
   }
 
   Future<void> _getSorunlar() async {
-    List<Map<String, dynamic>> sorunlar = await _firestoreService.getSorunlar();
+    // List<Map<String, dynamic>> sorunlar = await _firestoreService.getSorunlar();
     setState(() {
       this.sorunlar = sorunlar;
     });

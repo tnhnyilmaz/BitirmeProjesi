@@ -1,3 +1,4 @@
+import 'package:bitirme_egitim_sorunlari/Provider/AuthProvider.dart';
 import 'package:bitirme_egitim_sorunlari/Provider/SorunProvider.dart';
 import 'package:bitirme_egitim_sorunlari/firebase_options.dart';
 import 'package:bitirme_egitim_sorunlari/screens/InputSorunCozum.dart';
@@ -5,6 +6,7 @@ import 'package:bitirme_egitim_sorunlari/screens/anaEkran.dart';
 import 'package:bitirme_egitim_sorunlari/screens/cozumListeleme.dart';
 import 'package:bitirme_egitim_sorunlari/screens/inputSorun.dart';
 import 'package:bitirme_egitim_sorunlari/screens/login.dart';
+import 'package:bitirme_egitim_sorunlari/screens/register.dart';
 import 'package:bitirme_egitim_sorunlari/screens/sorunListeleme.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
@@ -25,6 +27,7 @@ class MyApp extends StatelessWidget {
     return MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (context) => SelectedSorunProvider()),
+        ChangeNotifierProvider(create: (context) => KullaniciProvider()),
         // Diğer provider'ları buraya ekleyebilirsiniz
       ],
       child: MaterialApp(
@@ -37,6 +40,7 @@ class MyApp extends StatelessWidget {
           '/SorunCozum': (context) => InputSorunCozum(),
           '/SorunListeleme': (context) => SorunListeleme(),
           '/CozumListeleme': (context) => const CozumListeleme(),
+          '/Register': (context) => RegisterScreen(),
         },
       ),
     );

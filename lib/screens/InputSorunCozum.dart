@@ -22,14 +22,44 @@ class _InputSorunCozumState extends State<InputSorunCozum> {
   TextEditingController cozum3 = TextEditingController();
 
   @override
+  void initState() {
+    super.initState();
+    _getCozumler();
+  }
+
+  void _getCozumler() async {
+    // Provider aracılığıyla seçilen sorunu al
+    SorunModel? selectedSorun =
+        Provider.of<SelectedSorunProvider>(context, listen: false)
+            .selectedSorun;
+
+    if (selectedSorun != null) {
+      String sorunID = selectedSorun.documentID!;
+      print("SORUNID AMK : $sorunID");
+      if (selectedSorun.documentID != null) {
+        print("select: ${selectedSorun.documentID}");
+      } else {
+        print("Document ID is null.");
+      }
+      print(
+          "select: ${selectedSorun.sorunMetni}"); // Sorun metni örneği, sizin kullanmanız gereken özelliği belirtir
+      setState(() {}); // setState ile widget'ı güncelle
+    } else {
+      print("Selected Sorun is null.");
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
-    final SorunModel selectedSorun =
-        Provider.of<SelectedSorunProvider>(context).selectedSorun!;
+    StyleTextProject styleTextProject = StyleTextProject();
+    SorunModel? selectedSorun =
+        Provider.of<SelectedSorunProvider>(context, listen: false)
+            .selectedSorun;
     double width = MediaQuery.of(context).size.width;
     double height = MediaQuery.of(context).size.height;
-    String selectedsorunID = selectedSorun.documentID ?? '';
+    String selectedSorunID = selectedSorun!.documentID!;
+    print("select: ${selectedSorunID}");
 
-    StyleTextProject styleTextProject = StyleTextProject();
     return Scaffold(
         appBar: GeneralAppBar(
             styleTextProject: styleTextProject, title: "Sorun Çöz"),
@@ -40,7 +70,8 @@ class _InputSorunCozumState extends State<InputSorunCozum> {
               children: [
                 Container(
                   width: width,
-                  height: height * 0.2,
+                  height: styleTextProject
+                      .calculateContainerHeight(selectedSorun.sorunMetni),
                   decoration: BoxDecoration(
                       color: Colors.amber,
                       borderRadius: BorderRadius.circular(15)),
@@ -48,7 +79,7 @@ class _InputSorunCozumState extends State<InputSorunCozum> {
                       child: Padding(
                     padding: const EdgeInsets.only(left: 16, right: 10),
                     child: Text(
-                      selectedSorun.sorunMetni,
+                      selectedSorun!.sorunMetni,
                       style: const TextStyle(
                           fontSize: 16, fontWeight: FontWeight.bold),
                     ),
@@ -64,19 +95,11 @@ class _InputSorunCozumState extends State<InputSorunCozum> {
                       controller: cozum1,
                       labeltext: "Çözüm",
                     ),
-                    InputTextField(
-                      controller: cozum2,
-                      labeltext: "Çözüm",
-                    ),
-                    InputTextField(
-                      controller: cozum3,
-                      labeltext: "Çözüm",
-                    ),
                     KaydetButton(
                       text: "Çözümleri Kaydet",
                       onPressed: () {
                         _addToFirestore(cozum1.text, cozum2.text, cozum3.text,
-                            selectedsorunID);
+                            selectedSorunID);
                       },
                     ),
                   ],
@@ -91,11 +114,16 @@ class _InputSorunCozumState extends State<InputSorunCozum> {
     String kullaniciID = "2";
     // FirestoreService sınıfını kullanarak Firestore'a ekleme işlemi
     FirestoreService().addToCozum(kullaniciID, s1, sorunID);
-    FirestoreService().addToCozum(kullaniciID, s2, sorunID);
-    FirestoreService().addToCozum(kullaniciID, s3, sorunID);
+
     // Ekleme işleminden sonra text alanlarını temizle
     cozum1.clear();
-    cozum2.clear();
-    cozum3.clear();
+  }
+
+  double _calculateContainerHeight(String metin) {
+    // Burada isteğinize göre metnin uzunluğuna bağlı olarak bir hesaplama yapabilirsiniz.
+    // Aşağıdaki örnekte, metin uzunluğuna göre bir katsayı kullanılarak bir hesaplama yapılıyor.
+    // Siz kendi ihtiyaçlarınıza uygun bir formül kullanabilirsiniz.
+    double katsayi = 0.7; // Örnek bir katsayı
+    return metin.length * katsayi;
   }
 }
