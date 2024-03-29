@@ -18,6 +18,10 @@ class _SorunListelemeState extends State<SorunListeleme> {
   FirestoreService _firestoreService = FirestoreService();
   List<Map<String, dynamic>> sorunlar = [];
   late List<bool> _isExpandedList;
+  Map<String, int> sorunCountMap = {};
+  List<MapEntry<String, int>> top5SorunCount = [];
+  Map<String, dynamic> top5SorunIdMap = {};
+
   // ALT CONTAINERLARIN ÇIKIP ÇIKMAMAMSINI KONTROL EDEN DEĞİŞKENİMİZ
 
   @override
@@ -25,6 +29,7 @@ class _SorunListelemeState extends State<SorunListeleme> {
     super.initState();
     _isExpandedList = List.generate(10, (index) => false);
     _getSorunlar();
+
     //LİSTEMİZİ BURADA İLK DEFA BAŞLATIYORUZ. LİSTE BOYUTUNA GÖRE BOYUTLANIYOR VE
     //FALSE ATANIYOR.
   }
@@ -38,10 +43,61 @@ class _SorunListelemeState extends State<SorunListeleme> {
       return data;
     }).toList();
 
+    // Sorunları saymak için kullanılacak harita
+    Map<String, int> sorunCountMap = {};
+
+    // Sorunları döngü kullanarak say
+    sorunlar.forEach((sorun) {
+      String sorunMetni = sorun['sorunMetni'];
+      sorunCountMap[sorunMetni] = sorunCountMap.containsKey(sorunMetni)
+          ? sorunCountMap[sorunMetni]! + 1
+          : 1;
+    });
+    Map<String, String> sorunMetniToIdMap = {};
+
+    for (var sorun in sorunlar) {
+      sorunMetniToIdMap[sorun['sorunMetni']] = sorun['documentID'];
+    }
+    for (var entry in top5SorunCount) {
+      top5SorunIdMap[entry.key] = sorunMetniToIdMap[entry.key];
+    }
+
+    // Sorun sayımlarını sırala
+    List<MapEntry<String, int>> sortedSorunCount = sorunCountMap.entries
+        .toList()
+      ..sort((a, b) => b.value.compareTo(a.value));
+
+    // Top 5 sorun sayımı al
+    top5SorunCount = sortedSorunCount.take(5).toList();
+
     setState(() {
       this.sorunlar = sorunlar;
       _isExpandedList = List.generate(sorunlar.length, (index) => false);
     });
+
+    for (var entry in top5SorunCount) {
+      top5SorunIdMap[entry.key] = _getDocumentIdBySorunMetni(entry.key);
+      print("AAAAAAAAAAAAAAAAAA: ${top5SorunIdMap}");
+    }
+
+    // List<String> top5SorunMetinleri = top5SorunCount
+    // .map((entry) => "${entry.key} - ${top5SorunIdMap[entry.key]}")
+    // .toList();
+  }
+
+  String _getDocumentIdBySorunMetni(String sorunMetni) {
+    // Burada, sorunMetni'ye göre ilgili dokümanın ID'sini almanız gerekiyor.
+    // Bu işlemi Firestore'dan çekme veya başka bir kaynaktan sağlama mantığına göre uygulamalısınız.
+    // Bu sadece bir örnektir ve gerçek uygulamanıza uyacak şekilde uyarlamalısınız.
+    // Örneğin, sorunlar listesinde sorunMetni'ye göre arama yapabilirsiniz.
+    String? documentId;
+    for (var sorun in sorunlar) {
+      if (sorun['sorunMetni'] == sorunMetni) {
+        documentId = sorun['documentID'];
+        break;
+      }
+    }
+    return documentId ?? '';
   }
 
   @override
@@ -49,11 +105,16 @@ class _SorunListelemeState extends State<SorunListeleme> {
     StyleTextProject styleTextProject = StyleTextProject();
     double width = MediaQuery.of(context).size.width;
     double height = MediaQuery.of(context).size.height;
+    List<String> top5SorunMetinleri =
+        top5SorunCount.map((entry) => entry.key).toList();
+
+    //List<String> top5ID=top5SorunIdMap.ma
+    print("metinler: ${top5SorunMetinleri}");
     return Scaffold(
         appBar: GeneralAppBar(
             styleTextProject: styleTextProject, title: "Tüm Sorunları"),
         body: ListView.builder(
-          itemCount: sorunlar.length,
+          itemCount: top5SorunMetinleri.length,
           itemBuilder: (context, index) {
             int sayac = index + 1;
             return Padding(
@@ -65,8 +126,10 @@ class _SorunListelemeState extends State<SorunListeleme> {
                       children: [
                         Container(
                           width: width,
-                          height: styleTextProject.calculateContainerHeight(
-                              sorunlar[index]['sorunMetni']),
+                          height: (top5SorunMetinleri[index].length < 50)
+                              ? width * 0.2
+                              : styleTextProject.calculateContainerHeight(
+                                  top5SorunMetinleri[index]),
                           decoration: BoxDecoration(
                               color: Colors.amber,
                               borderRadius: _isExpandedList[index]
@@ -88,7 +151,7 @@ class _SorunListelemeState extends State<SorunListeleme> {
                                 Expanded(
                                   flex: 3,
                                   child: Text(
-                                    sorunlar[index]['sorunMetni'],
+                                    top5SorunMetinleri[index],
                                     style: styleTextProject.ListeSorun,
                                   ),
                                 ),
@@ -120,15 +183,15 @@ class _SorunListelemeState extends State<SorunListeleme> {
                               children: [
                                 GestureDetector(
                                   onTap: () async {
-                                    String selectedSorunID =
-                                        sorunlar[index]['documentID'];
+                                    String selectedSorunID = top5SorunIdMap[
+                                        top5SorunMetinleri[index]];
                                     Provider.of<SelectedSorunProvider>(context,
                                             listen: false)
                                         .setSelectedSorun(SorunModel(
                                             documentID: selectedSorunID,
                                             kullaniciID: "2",
-                                            sorunMetni: sorunlar[index]
-                                                ['sorunMetni']));
+                                            sorunMetni:
+                                                top5SorunMetinleri[index]));
                                     Navigator.pushNamed(
                                       context,
                                       '/SorunCozum',
@@ -142,21 +205,21 @@ class _SorunListelemeState extends State<SorunListeleme> {
                                       color: Colors.amber,
                                     ),
                                     child:
-                                        const Center(child: Text("Sorun Öner")),
+                                        const Center(child: Text("Sorun Çöz")),
                                   ),
                                 ),
                                 GestureDetector(
                                   onTap: () {
                                     print("PRİNTTTTTTT: ${sorunlar[index]}");
-                                    String selectedSorunID =
-                                        sorunlar[index]['documentID'];
+                                    String selectedSorunID = top5SorunIdMap[
+                                        top5SorunMetinleri[index]];
                                     Provider.of<SelectedSorunProvider>(context,
                                             listen: false)
                                         .setSelectedSorun(SorunModel(
                                             documentID: selectedSorunID,
                                             kullaniciID: "2",
-                                            sorunMetni: sorunlar[index]
-                                                ['sorunMetni']));
+                                            sorunMetni:
+                                                top5SorunMetinleri[index]));
                                     Navigator.pushNamed(
                                         context, "/CozumListeleme");
                                   },

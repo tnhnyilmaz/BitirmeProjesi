@@ -10,6 +10,14 @@ class FirestoreService {
     return await FirebaseFirestore.instance.collection("sorunlar").get();
   }
 
+  Future<QuerySnapshot<Map<String, dynamic>>> getIDCozum(String sorunId) async {
+    return await FirebaseFirestore.instance
+        .collection("sorunlar")
+        .doc(sorunId)
+        .collection("cozumler")
+        .get();
+  }
+
   Future<void> addSorun(String kullaniciID, String sorunMetni) async {
     // Belirlediğiniz customDocumentId kullanarak bir referans oluşturun
     DocumentReference docRef =
@@ -19,23 +27,8 @@ class FirestoreService {
     await docRef.set({
       "kullaniciID": kullaniciID,
       "sorunMetni": sorunMetni,
+      'timestamp': Timestamp.now()
     });
-  }
-
-  Future<List<String>> getDocumentIds() async {
-    try {
-      QuerySnapshot querySnapshot =
-          await FirebaseFirestore.instance.collection('sorunlar').get();
-
-      // Belirli bir koleksiyondaki belgelerin ID'lerine erişme
-      List<String> documentIds =
-          querySnapshot.docs.map((doc) => doc.id).toList();
-
-      return documentIds;
-    } catch (e) {
-      print('Error getting documents: $e');
-      return [];
-    }
   }
 
   Future<List<Map<String, dynamic>>> getCozum(String sorunID) async {

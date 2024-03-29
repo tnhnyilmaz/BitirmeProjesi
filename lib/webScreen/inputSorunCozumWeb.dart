@@ -9,14 +9,14 @@ import 'package:bitirme_egitim_sorunlari/services/sorunListeleme.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-class InputSorunCozum extends StatefulWidget {
-  const InputSorunCozum({super.key});
+class InputSorunCozumWeb extends StatefulWidget {
+  const InputSorunCozumWeb({super.key});
 
   @override
-  State<InputSorunCozum> createState() => _InputSorunCozumState();
+  State<InputSorunCozumWeb> createState() => _InputSorunCozumWebState();
 }
 
-class _InputSorunCozumState extends State<InputSorunCozum> {
+class _InputSorunCozumWebState extends State<InputSorunCozumWeb> {
   TextEditingController cozum1 = TextEditingController();
   TextEditingController cozum2 = TextEditingController();
   TextEditingController cozum3 = TextEditingController();
@@ -66,57 +66,50 @@ class _InputSorunCozumState extends State<InputSorunCozum> {
         body: Padding(
           padding: const EdgeInsets.all(15),
           child: SingleChildScrollView(
-            child: Column(
-              children: [
-                Container(
-                  width: width,
-                  height: (selectedSorun.sorunMetni.length < 50)
-                      ? width * 0.2
-                      : styleTextProject
-                          .calculateContainerHeight(selectedSorun.sorunMetni),
-                  decoration: BoxDecoration(
-                      color: Colors.amber,
-                      borderRadius: BorderRadius.circular(15)),
-                  child: Center(
-                      child: Padding(
-                    padding: const EdgeInsets.only(left: 16, right: 10),
-                    child: Text(
-                      selectedSorun!.sorunMetni,
-                      style: const TextStyle(
-                          fontSize: 16, fontWeight: FontWeight.bold),
-                    ),
-                  )),
-                ),
-                const SizedBox(
-                  height: 25,
-                ),
-                Wrap(
-                  runSpacing: 15,
-                  children: [
-                    InputTextField(
-                      controller: cozum1,
-                      labeltext: "Çözüm",
-                    ),
-                    KaydetButton(
-                      text: "Çözümleri Kaydet",
-                      onPressed: () {
-                        _addToFirestore(cozum1.text, cozum2.text, cozum3.text,
-                            selectedSorunID);
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: Text('İşlem başarıyla gerçekleştirildi.'),
-                            duration: Duration(seconds: 3),
-                            elevation: 10,
-                            backgroundColor: Colors.green.withOpacity(0.5),
-                            shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(10)),
-                          ),
-                        );
-                      },
-                    ),
-                  ],
-                )
-              ],
+            child: Padding(
+              padding: const EdgeInsets.only(left: 150, right: 150),
+              child: Column(
+                children: [
+                  Container(
+                    width: width,
+                    height: (selectedSorun.sorunMetni.length < 50)
+                        ? width * 0.2
+                        : styleTextProject
+                            .calculateContainerHeight(selectedSorun.sorunMetni),
+                    decoration: BoxDecoration(
+                        color: Colors.amber,
+                        borderRadius: BorderRadius.circular(15)),
+                    child: Center(
+                        child: Padding(
+                      padding: const EdgeInsets.only(left: 16, right: 10),
+                      child: Text(
+                        selectedSorun!.sorunMetni,
+                        style: const TextStyle(
+                            fontSize: 16, fontWeight: FontWeight.bold),
+                      ),
+                    )),
+                  ),
+                  const SizedBox(
+                    height: 25,
+                  ),
+                  Wrap(
+                    runSpacing: 15,
+                    children: [
+                      InputTextField(
+                        controller: cozum1,
+                        labeltext: "Çözüm",
+                      ),
+                      KaydetButton(
+                        text: "Çözümleri Kaydet",
+                        onPressed: () {
+                          _addToFirestore(cozum1.text, cozum2.text, cozum3.text,
+                              selectedSorunID);
+                        },
+                      ),
+                    ],
+                  )
+                ],
+              ),
             ),
           ),
         ));

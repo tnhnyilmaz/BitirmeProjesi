@@ -1,6 +1,8 @@
+import 'package:bitirme_egitim_sorunlari/Provider/AuthProvider.dart';
 import 'package:bitirme_egitim_sorunlari/const/textStyle.dart';
 import 'package:bitirme_egitim_sorunlari/services/auth_Service.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 class RegisterScreen extends StatefulWidget {
   RegisterScreen({super.key});
@@ -21,6 +23,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
   @override
   Widget build(BuildContext context) {
+    String? userId =
+        Provider.of<KullaniciProvider>(context, listen: false).userId;
     return Scaffold(
       body: SingleChildScrollView(
         child: Container(
@@ -57,9 +61,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         topRight: Radius.circular(40)),
                   ),
                   child: Padding(
-                    padding: const EdgeInsets.all(24.0),
-                    child: mailPasswordField(context),
-                  ),
+                      padding: const EdgeInsets.all(24.0),
+                      child: mailPasswordField(context)),
                 ),
               )
             ],
@@ -206,7 +209,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
             child: ElevatedButton(
                 onPressed: () {
                   _authService.signUp(nameCont.text, lastnameCont.text,
-                      passwordCont.text, emailCont.text, context);
+                      passwordCont.text, emailCont.text, false, context);
                   Navigator.pushNamed(context, "/");
                 },
                 style: ElevatedButton.styleFrom(

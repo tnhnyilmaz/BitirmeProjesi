@@ -12,9 +12,11 @@ class TopBackground extends StatelessWidget {
     double width = MediaQuery.of(context).size.width;
     double height = MediaQuery.of(context).size.height;
     AuthService _authService = AuthService();
-
+    TextEditingController title = TextEditingController();
+    bool a;
     Kullanicilar? kullanici =
         Provider.of<KullaniciProvider>(context).kullanicilar;
+    bool isAdmin = kullanici?.role ?? true;
 
     return Stack(
       children: [
@@ -40,13 +42,14 @@ class TopBackground extends StatelessWidget {
         Padding(
           padding: const EdgeInsets.all(15.0),
           child: Align(
-            alignment: Alignment.centerLeft,
+            alignment: Alignment.topCenter,
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
                   "Merhaba ${kullanici?.isim ?? ''},",
-                  style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold),
+                  style: const TextStyle(
+                      fontSize: 30, fontWeight: FontWeight.bold),
                 ),
                 IconButton(
                     onPressed: () {
@@ -60,7 +63,63 @@ class TopBackground extends StatelessWidget {
             ),
           ),
         ),
+
+        isAdmin ? konuField(title) : gununKonusuText(),
+        isAdmin ? konuField(title) : variableKonuText()
+        //  konuField(title),
       ],
+    );
+  }
+
+  Padding variableKonuText() {
+    return const Padding(
+      padding: EdgeInsets.only(top: 70, left: 15),
+      child: Align(
+        alignment: Alignment.centerLeft,
+        child: Text(
+          " topic",
+          style: TextStyle(
+              color: Colors.black, fontSize: 40, fontWeight: FontWeight.w900),
+        ),
+      ),
+    );
+  }
+
+  Padding gununKonusuText() {
+    return const Padding(
+      padding: EdgeInsets.all(15.0),
+      child: Align(
+        alignment: Alignment.centerLeft,
+        child: Text(
+          "Günün Konusu:",
+          style: TextStyle(
+              color: Colors.black, fontSize: 20, fontWeight: FontWeight.w500),
+        ),
+      ),
+    );
+  }
+
+  Padding konuField(TextEditingController title) {
+    return Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: Align(
+        alignment: Alignment.bottomCenter,
+        child: TextField(
+          controller: title,
+          decoration: InputDecoration(
+            border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(8),
+                borderSide: BorderSide.none),
+            filled: true,
+            fillColor: const Color(0xFFFBC02D),
+            hintText: "Bugünün konusunu giriniz..",
+            prefixIcon: const Icon(
+              Icons.sms_rounded,
+              color: Colors.black,
+            ),
+          ),
+        ),
+      ),
     );
   }
 }

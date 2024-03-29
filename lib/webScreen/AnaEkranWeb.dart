@@ -1,24 +1,23 @@
 import 'package:bitirme_egitim_sorunlari/Provider/AuthProvider.dart';
-import 'package:bitirme_egitim_sorunlari/compenents/anaEkranContainer.dart';
-import 'package:bitirme_egitim_sorunlari/compenents/topBackgorund.dart';
+import 'package:bitirme_egitim_sorunlari/compenents/web/anaEkranContainerWeb.dart';
+import 'package:bitirme_egitim_sorunlari/compenents/web/topBackWeb.dart';
 import 'package:bitirme_egitim_sorunlari/services/auth_Service.dart';
 import 'package:flutter/material.dart';
 
-class AnaEkran extends StatelessWidget {
-  const AnaEkran({super.key});
+class AnaEkranWeb extends StatelessWidget {
+  const AnaEkranWeb({super.key});
 
   @override
   Widget build(BuildContext context) {
     AuthService _authService = AuthService();
     KullaniciProvider kullaniciProvider = KullaniciProvider();
-
     return Scaffold(
       backgroundColor: Colors.white,
       body: Column(
         children: [
           const Expanded(
             flex: 2,
-            child: TopBackground(),
+            child: TopBackgroundWeb(),
           ),
           Expanded(
             flex: 4,
@@ -29,7 +28,9 @@ class AnaEkran extends StatelessWidget {
                     constraints: BoxConstraints(
                       minHeight: constraints.maxHeight - 100,
                     ),
-                    child: Column(
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
                         Padding(
                           padding: const EdgeInsets.all(8.0),
@@ -40,19 +41,22 @@ class AnaEkran extends StatelessWidget {
                                 onTap: () {
                                   Navigator.pushNamed(context, '/InputSorun');
                                 },
-                                child: const HomeContainer(
+                                child: const HomeContainerWeb(
                                   imageUrl:
-                                      "https://i.pinimg.com/originals/83/36/1c/83361cca2748eaf1a208530109974c1c.png",
-                                  text: 'Sorun Belirt',
+                                      "https://i.hizliresim.com/35osmyk.png",
+                                  text: '   Sorun Belirt',
                                 ),
+                              ),
+                              SizedBox(
+                                width: 100,
                               ),
                               GestureDetector(
                                 onTap: () {
                                   Navigator.pushNamed(
                                       context, '/SorunListeleme');
                                 },
-                                child: const HomeContainer(
-                                    text: "Tüm Sorunlar",
+                                child: const HomeContainerWeb(
+                                    text: "   Tüm Sorunlar",
                                     imageUrl:
                                         "https://cdn-icons-png.flaticon.com/512/1547/1547559.png"),
                               ),

@@ -12,4 +12,11 @@ class KullaniciProvider extends ChangeNotifier {
     _kullanicilar = kullanicilar;
     notifyListeners();
   }
+
+  String? _userId;
+  String? get userId => _userId;
+  void setUserId(String docId) {
+    _userId = docId;
+    notifyListeners();
+  }
 }

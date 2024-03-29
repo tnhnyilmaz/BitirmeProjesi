@@ -1,20 +1,18 @@
-import 'package:bitirme_egitim_sorunlari/Provider/AuthProvider.dart';
 import 'package:bitirme_egitim_sorunlari/const/textStyle.dart';
 import 'package:bitirme_egitim_sorunlari/services/auth_Service.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 
-class Login extends StatefulWidget {
-  const Login({super.key});
+class LoginWeb extends StatefulWidget {
+  const LoginWeb({super.key});
 
   @override
-  State<Login> createState() => _LoginState();
+  State<LoginWeb> createState() => _LoginWebState();
 }
 
 AuthService authService = AuthService();
 bool _obscureText = true;
 
-class _LoginState extends State<Login> {
+class _LoginWebState extends State<LoginWeb> {
   StyleTextProject styleText = StyleTextProject();
   TextEditingController emailCont = TextEditingController();
   TextEditingController passwordCont = TextEditingController();
@@ -48,7 +46,7 @@ class _LoginState extends State<Login> {
               Expanded(
                 flex: 5,
                 child: Container(
-                  width: double.infinity,
+                  width: double.infinity / 2,
                   decoration: const BoxDecoration(
                     color: Colors.white,
                     borderRadius: BorderRadius.only(
@@ -57,7 +55,10 @@ class _LoginState extends State<Login> {
                   ),
                   child: Padding(
                     padding: const EdgeInsets.all(24.0),
-                    child: mailPasswordField(context),
+                    child: Padding(
+                      padding: const EdgeInsets.only(left: 180, right: 180),
+                      child: mailPasswordField(context),
+                    ),
                   ),
                 ),
               )
@@ -129,13 +130,9 @@ class _LoginState extends State<Login> {
             width: double.infinity,
             decoration: BoxDecoration(borderRadius: BorderRadius.circular(8)),
             child: ElevatedButton(
-                onPressed: () async {
-                  authService
-                      .signIn(emailCont.text, passwordCont.text, context)
-                      .then((kullanici) {
-                    Provider.of<KullaniciProvider>(context, listen: false)
-                        .setUser(kullanici!);
-                  });
+                onPressed: () {
+                  authService.signIn(
+                      emailCont.text, passwordCont.text, context);
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.amber,

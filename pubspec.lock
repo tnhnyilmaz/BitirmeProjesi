@@ -17,6 +17,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.11.0"
+  automata_theory:
+    dependency: transitive
+    description:
+      name: automata_theory
+      sha256: "6f116a0be8b3b728454d8b3e49f17bff198386d9f19b328a17f976c556aea3d7"
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.0.3"
   boolean_selector:
     dependency: transitive
     description:
@@ -293,6 +301,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.2.0"
+  string_similarity:
+    dependency: "direct main"
+    description:
+      name: string_similarity
+      sha256: "5219d2ca048f6d3b8954747644b99b103244b5f84ef62b2577d29eb6bdeb61bb"
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.0.0"
   term_glyph:
     dependency: transitive
     description:
@@ -309,6 +325,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "0.6.1"
+  text_similarity:
+    dependency: "direct main"
+    description:
+      name: text_similarity
+      sha256: d9cc9492d00e18e8638aeab7d6f37195efc34f42de8d5f29999071a2d9458823
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.0.1"
   typed_data:
     dependency: transitive
     description:

@@ -3,8 +3,8 @@ import 'package:bitirme_egitim_sorunlari/compenents/generalAppbar.dart';
 import 'package:bitirme_egitim_sorunlari/const/textStyle.dart';
 import 'package:bitirme_egitim_sorunlari/screens/a.dart';
 import 'package:bitirme_egitim_sorunlari/services/sorunListeleme.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:fuzzywuzzy/fuzzywuzzy.dart';
 import 'package:provider/provider.dart';
 
 class CozumListeleme extends StatefulWidget {
@@ -16,8 +16,13 @@ class CozumListeleme extends StatefulWidget {
 
 class _CozumListelemeState extends State<CozumListeleme> {
   List<Map<String, dynamic>> cozumler = [];
+  List<Map<String, dynamic>> cozumIdGet = [];
   FirestoreService _firestoreService = FirestoreService();
   String? selectedSorunDocumentID;
+  FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  String sorunID = '';
+  String cozumID = '';
+  List<bool> isSupportedList = [];
 
   @override
   void initState() {
@@ -25,6 +30,44 @@ class _CozumListelemeState extends State<CozumListeleme> {
     _getCozumler();
   }
 
+  @override
+  void dispose() {
+    super.dispose();
+  }
+
+  bool isSupported(int index) {
+    return isSupportedList[index];
+  }
+
+  void _updateCount(
+      String cozumDocumentID, bool increment, String sorunID, int index) async {
+    CollectionReference cozumlerCollection =
+        _firestore.collection("sorunlar").doc(sorunID).collection("cozumler");
+
+    try {
+      await cozumlerCollection.doc(cozumDocumentID).update({
+        'count': increment ? FieldValue.increment(1) : FieldValue.increment(-1),
+      });
+      print('Count güncellendi!');
+
+      setState(() {
+        if (increment) {
+          cozumler[index]['destekSayisi']++;
+        } else {
+          cozumler[index]['destekSayisi']--;
+        }
+
+        // Çözüm ID'sini kullanarak isSupportedList'i güncelle
+        int updatedIndex = cozumIdGet
+            .indexWhere((element) => element['documentID'] == cozumDocumentID);
+        if (updatedIndex != -1) {
+          isSupportedList[updatedIndex] = !isSupportedList[updatedIndex];
+        }
+      });
+    } catch (e) {
+      print('Count güncelleme hatası: $e');
+    }
+  }
   // @override
   // void didChangeDependencies() {
   //   super.didChangeDependencies();
@@ -38,19 +81,34 @@ class _CozumListelemeState extends State<CozumListeleme> {
   //     });
   //   }
   // }
+  void _sortCozumlerByDestek() {
+    cozumler.sort((a, b) => int.parse(b['destekSayisi'].toString())
+        .compareTo(int.parse(a['destekSayisi'].toString())));
+  }
 
+  // _getCozumler metodunu aşağıdaki gibi güncelleyin
   Future<void> _getCozumler() async {
-    // Provider aracılığıyla seçilen sorunu al
     SorunModel? selectedSorun =
         Provider.of<SelectedSorunProvider>(context, listen: false)
             .selectedSorun;
 
     if (selectedSorun != null) {
-      String sorunID = selectedSorun.documentID!;
-      print("SORUNID AMK : ${{sorunID}}");
+      sorunID = selectedSorun.documentID!;
       cozumler = await _firestoreService.getCozum(sorunID);
+
+      // Cozumler listesini destek sayısına göre sırala
+      _sortCozumlerByDestek();
+      isSupportedList = List.generate(cozumler.length, (index) => false);
+
       setState(() {}); // setState ile widget'ı güncelle
     }
+    QuerySnapshot<Map<String, dynamic>> querySnapshot =
+        await _firestoreService.getIDCozum(sorunID);
+    cozumIdGet = querySnapshot.docs.map((doc) {
+      Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
+      data['documentID'] = doc.id; // Belge ID'sini ekle
+      return data;
+    }).toList();
   }
 
   @override
@@ -60,23 +118,6 @@ class _CozumListelemeState extends State<CozumListeleme> {
     StyleTextProject styleTextProject = StyleTextProject();
     double width = MediaQuery.of(context as BuildContext).size.width;
     double height = MediaQuery.of(context as BuildContext).size.height;
-    print(
-      extractTop(
-        query: 'goolge',
-        choices: [
-          'google',
-          'bing',
-          'facebook',
-          'linkedin',
-          'twitter',
-          'googleplus',
-          'bingnews',
-          'plexoogl'
-        ],
-        limit: 4,
-        cutoff: 50,
-      ),
-    );
     return Scaffold(
         appBar: GeneralAppBar(
             styleTextProject: styleTextProject, title: "Çözümler"),
@@ -88,8 +129,10 @@ class _CozumListelemeState extends State<CozumListeleme> {
                 padding: const EdgeInsets.all(8.0),
                 child: Container(
                   width: width,
-                  height: styleTextProject
-                      .calculateContainerHeight(selectedSorun.sorunMetni),
+                  height: (selectedSorun.sorunMetni.length < 50)
+                      ? height * 0.2
+                      : styleTextProject
+                          .calculateContainerHeight(selectedSorun.sorunMetni),
                   decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(15),
                       color: Colors.amber),
@@ -110,6 +153,7 @@ class _CozumListelemeState extends State<CozumListeleme> {
                 itemCount: cozumler.length,
                 itemBuilder: (context, index) {
                   int sayac = index + 1;
+
                   return Padding(
                       padding: const EdgeInsets.all(8.0),
                       child: GestureDetector(
@@ -141,7 +185,7 @@ class _CozumListelemeState extends State<CozumListeleme> {
                                           cozumler[index]['cozumMetni'],
                                           style: styleTextProject.ListeSorun,
                                         ),
-                                      )
+                                      ),
                                     ],
                                   ),
                                 ),

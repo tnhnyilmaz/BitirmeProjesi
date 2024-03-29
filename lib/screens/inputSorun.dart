@@ -71,6 +71,18 @@ class _SorunInputState extends State<SorunInput> {
                             onPressed: () {
                               _addToFirestore(sorun1.text, sorun2.text,
                                   sorun3.text, sorun4.text, sorun5.text);
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content:
+                                      Text('İşlem başarıyla gerçekleştirildi.'),
+                                  duration: Duration(seconds: 3),
+                                  elevation: 10,
+                                  backgroundColor:
+                                      Colors.green.withOpacity(0.5),
+                                  shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(10)),
+                                ),
+                              );
                             },
                           ),
                         ],

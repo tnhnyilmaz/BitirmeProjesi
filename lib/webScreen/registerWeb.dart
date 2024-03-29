@@ -1,23 +1,24 @@
-import 'package:bitirme_egitim_sorunlari/Provider/AuthProvider.dart';
 import 'package:bitirme_egitim_sorunlari/const/textStyle.dart';
 import 'package:bitirme_egitim_sorunlari/services/auth_Service.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 
-class Login extends StatefulWidget {
-  const Login({super.key});
+class RegisterScreenWeb extends StatefulWidget {
+  RegisterScreenWeb({super.key});
 
   @override
-  State<Login> createState() => _LoginState();
+  State<RegisterScreenWeb> createState() => _RegisterScreenWebState();
 }
 
-AuthService authService = AuthService();
-bool _obscureText = true;
-
-class _LoginState extends State<Login> {
-  StyleTextProject styleText = StyleTextProject();
+class _RegisterScreenWebState extends State<RegisterScreenWeb> {
   TextEditingController emailCont = TextEditingController();
   TextEditingController passwordCont = TextEditingController();
+  TextEditingController nameCont = TextEditingController();
+  TextEditingController lastnameCont = TextEditingController();
+
+  StyleTextProject styleTextProject = StyleTextProject();
+  AuthService _authService = AuthService();
+  bool _obscureText = true;
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -38,7 +39,7 @@ class _LoginState extends State<Login> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Expanded(
-                flex: 2,
+                flex: 1,
                 child: Padding(
                   padding:
                       const EdgeInsets.symmetric(vertical: 20, horizontal: 24),
@@ -57,7 +58,10 @@ class _LoginState extends State<Login> {
                   ),
                   child: Padding(
                     padding: const EdgeInsets.all(24.0),
-                    child: mailPasswordField(context),
+                    child: Padding(
+                      padding: const EdgeInsets.only(left: 150, right: 150),
+                      child: mailPasswordField(context),
+                    ),
                   ),
                 ),
               )
@@ -65,6 +69,48 @@ class _LoginState extends State<Login> {
           ),
         ),
       ),
+    );
+  }
+
+  Column topTexts() {
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.end,
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          "Kayıt Ol!",
+          style: TextStyle(
+            color: Colors.white,
+            fontSize: 35,
+            fontWeight: FontWeight.w800,
+            shadows: [
+              Shadow(
+                offset: const Offset(2.0, 2.0),
+                blurRadius: 3.0,
+                color: Colors.black.withOpacity(0.2),
+              ),
+            ],
+          ),
+        ),
+        // const SizedBox(
+        //   height: 2,
+        // ),
+        Text(
+          "Sorun ve çözümlerde pay sahibi ol!",
+          style: TextStyle(
+            color: Colors.white,
+            fontSize: 18,
+            fontWeight: FontWeight.w200,
+            shadows: [
+              Shadow(
+                offset: const Offset(2.0, 2.0),
+                blurRadius: 3.0,
+                color: Colors.black.withOpacity(0.2),
+              ),
+            ],
+          ),
+        ),
+      ],
     );
   }
 
@@ -94,8 +140,7 @@ class _LoginState extends State<Login> {
           ),
           TextField(
             controller: passwordCont,
-            obscureText: _obscureText,
-            keyboardType: TextInputType.emailAddress,
+            keyboardType: TextInputType.visiblePassword,
             decoration: InputDecoration(
                 border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(8),
@@ -117,87 +162,75 @@ class _LoginState extends State<Login> {
                         ? Icons.visibility
                         : Icons.visibility_off_outlined))),
           ),
-          TextButton(
-              onPressed: () {},
-              child: Align(
-                  alignment: Alignment.centerRight,
-                  child: Text(
-                    "Şİfrenizi mi unuttunuz?",
-                    style: styleText.loginText,
-                  ))),
+          const SizedBox(
+            height: 20,
+          ),
+          TextField(
+            controller: nameCont,
+            keyboardType: TextInputType.visiblePassword,
+            decoration: InputDecoration(
+              border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(8),
+                  borderSide: BorderSide.none),
+              filled: true,
+              fillColor: const Color(0xFFe7edeb),
+              hintText: "İsim",
+              prefixIcon: Icon(
+                Icons.person,
+                color: Colors.grey[600],
+              ),
+            ),
+          ),
+          const SizedBox(
+            height: 20,
+          ),
+          TextField(
+            controller: lastnameCont,
+            keyboardType: TextInputType.visiblePassword,
+            decoration: InputDecoration(
+              border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(8),
+                  borderSide: BorderSide.none),
+              filled: true,
+              fillColor: const Color(0xFFe7edeb),
+              hintText: "Soyisim",
+              prefixIcon: Icon(
+                Icons.person,
+                color: Colors.grey[600],
+              ),
+            ),
+          ),
+          SizedBox(
+            height: 20,
+          ),
           Container(
             width: double.infinity,
             decoration: BoxDecoration(borderRadius: BorderRadius.circular(8)),
             child: ElevatedButton(
-                onPressed: () async {
-                  authService
-                      .signIn(emailCont.text, passwordCont.text, context)
-                      .then((kullanici) {
-                    Provider.of<KullaniciProvider>(context, listen: false)
-                        .setUser(kullanici!);
-                  });
+                onPressed: () {
+                  // _authService.signUp(nameCont.text, lastnameCont.text,
+                  //     passwordCont.text, emailCont.text, false, context);
+                  Navigator.pushNamed(context, "/");
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.amber,
                 ),
                 child: const Text(
-                  "Giriş",
+                  "Kayıt Ol",
                   style: TextStyle(fontSize: 20, fontWeight: FontWeight.w500),
                 )),
           ),
-          Align(
-            child: TextButton(
-                onPressed: () {
-                  Navigator.pushNamed(context, '/Register');
-                },
-                child: Text(
-                  "Hesabınız Yok mu? Kayıt Ol!",
-                  style: styleText.loginText,
-                )),
-            alignment: Alignment.bottomCenter,
-          )
+          SizedBox(
+            height: 20,
+          ),
+          TextButton(
+              onPressed: () {
+                Navigator.pushNamed(context, "/");
+              },
+              child: Text(
+                "Üye misiniz? Giriş Yap!",
+                style: styleTextProject.loginText,
+              ))
         ]);
-  }
-
-  Column topTexts() {
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.end,
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          "Giriş Yap",
-          style: TextStyle(
-            color: Colors.white,
-            fontSize: 46,
-            fontWeight: FontWeight.w800,
-            shadows: [
-              Shadow(
-                offset: const Offset(2.0, 2.0),
-                blurRadius: 3.0,
-                color: Colors.black.withOpacity(0.2),
-              ),
-            ],
-          ),
-        ),
-        const SizedBox(
-          height: 5,
-        ),
-        Text(
-          "Eğitimde Yeni Yolculuklar,\nSorunları Birlikte Çöz!",
-          style: TextStyle(
-            color: Colors.white,
-            fontSize: 22,
-            fontWeight: FontWeight.w300,
-            shadows: [
-              Shadow(
-                offset: const Offset(2.0, 2.0),
-                blurRadius: 3.0,
-                color: Colors.black.withOpacity(0.2),
-              ),
-            ],
-          ),
-        ),
-      ],
-    );
   }
 }
