@@ -1,9 +1,14 @@
+import 'package:bitirme_egitim_sorunlari/Provider/AuthProvider.dart';
+import 'package:bitirme_egitim_sorunlari/Provider/dateProvider.dart';
 import 'package:bitirme_egitim_sorunlari/compenents/generalAppbar.dart';
 import 'package:bitirme_egitim_sorunlari/compenents/inputTextField.dart';
 import 'package:bitirme_egitim_sorunlari/compenents/kaydetButton.dart';
 import 'package:bitirme_egitim_sorunlari/const/textStyle.dart';
+import 'package:bitirme_egitim_sorunlari/model/kullanicilar.dart';
 import 'package:bitirme_egitim_sorunlari/services/sorunListeleme.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class SorunInput extends StatefulWidget {
   const SorunInput({super.key});
@@ -14,15 +19,48 @@ class SorunInput extends StatefulWidget {
 
 class _SorunInputState extends State<SorunInput> {
   static int sayac = 1;
+  String? a = "";
+  SharedPreferences? prefs;
+  Future<void> getLocalData() async {
+    prefs = await SharedPreferences.getInstance();
+  }
+
+  @override
+  initState() {
+    super.initState();
+    Provider.of<DateProvider>(context, listen: false).loadSelectedDate();
+    Future<void>.delayed(Duration.zero, () async {
+      prefs = await SharedPreferences.getInstance();
+      // prefs artık kullanılabilir
+    });
+    a;
+  }
+
   FirestoreService _firestoreService = FirestoreService();
+
+  String id = "";
+  String? selectedDate;
   StyleTextProject styleTextProject = StyleTextProject();
   TextEditingController sorun1 = TextEditingController();
   TextEditingController sorun2 = TextEditingController();
   TextEditingController sorun3 = TextEditingController();
   TextEditingController sorun4 = TextEditingController();
   TextEditingController sorun5 = TextEditingController();
+
   @override
   Widget build(BuildContext context) {
+    Kullanicilar? kullanici =
+        Provider.of<KullaniciProvider>(context).kullanicilar;
+    selectedDate = Provider.of<DateProvider>(context).selectedDate;
+
+    if (selectedDate != null) {
+      _saveDailyTopic(selectedDate!);
+      // selectedDate'i kullan
+      a = selectedDate;
+      print("KARDEŞİMSİN BU AAA VALALHİ  : " + selectedDate!);
+      _saveDailyTopic(a!);
+    }
+    id = kullanici!.id;
     return Scaffold(
       appBar: GeneralAppBar(
           styleTextProject: styleTextProject, title: "Eğitim Sorunları"),
@@ -94,15 +132,38 @@ class _SorunInputState extends State<SorunInput> {
     );
   }
 
-  void _addToFirestore(String s1, String s2, String s3, String s4, String s5) {
-    String kullaniciID = "2";
+  Future<void> _saveDailyTopic(String topic) async {
+    await prefs?.setString("selectedDate", topic);
+  }
 
+  Future<void> _saveTopic(String topic) async {
+    await prefs?.setString("date", topic);
+  }
+
+  void _addToFirestore(String s1, String s2, String s3, String s4, String s5) {
+    String kullaniciID = id;
+    //String? temp = prefs?.getString("selectedDate");
+    print("AAAAAAAAAA1111111111111111: " + a!);
+    if (a == "") {
+      String? temp = prefs?.getString("date");
+      if (temp != null) {
+        a = temp;
+      } else {
+        return;
+      }
+      a = temp;
+      print("boş geliypr kardeşşş");
+    } else {
+      print("sıkıntı etmemek gerekir");
+      _saveTopic(a!);
+    }
     // FirestoreService sınıfını kullanarak Firestore'a ekleme işlemi
-    FirestoreService().addSorun(kullaniciID, s1);
-    FirestoreService().addSorun(kullaniciID, s2);
-    FirestoreService().addSorun(kullaniciID, s3);
-    FirestoreService().addSorun(kullaniciID, s4);
-    FirestoreService().addSorun(kullaniciID, s5);
+
+    FirestoreService().addSorunTopics(a!, kullaniciID, s1);
+    FirestoreService().addSorunTopics(a!, kullaniciID, s2);
+    FirestoreService().addSorunTopics(a!, kullaniciID, s3);
+    FirestoreService().addSorunTopics(a!, kullaniciID, s4);
+    FirestoreService().addSorunTopics(a!, kullaniciID, s5);
     // Ekleme işleminden sonra text alanlarını temizle
     sorun1.clear();
     sorun2.clear();

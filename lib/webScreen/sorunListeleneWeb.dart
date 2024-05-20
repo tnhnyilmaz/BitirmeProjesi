@@ -35,7 +35,7 @@ class _SorunListelemeWebState extends State<SorunListelemeWeb> {
 
   Future<void> _getSorunlar() async {
     QuerySnapshot<Map<String, dynamic>> querySnapshot =
-        await _firestoreService.getSorunlar();
+        await _firestoreService.getSorunlar("");
     List<Map<String, dynamic>> sorunlar = querySnapshot.docs.map((doc) {
       Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
       data['documentID'] = doc.id; // Belge ID'sini ekle

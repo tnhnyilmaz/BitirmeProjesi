@@ -1,23 +1,61 @@
 import 'package:bitirme_egitim_sorunlari/Provider/AuthProvider.dart';
+import 'package:bitirme_egitim_sorunlari/Provider/dateProvider.dart';
 import 'package:bitirme_egitim_sorunlari/model/kullanicilar.dart';
 import 'package:bitirme_egitim_sorunlari/services/auth_Service.dart';
+import 'package:bitirme_egitim_sorunlari/services/sorunListeleme.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
-class TopBackground extends StatelessWidget {
+class TopBackground extends StatefulWidget {
   const TopBackground({super.key});
+
+  @override
+  State<TopBackground> createState() => _TopBackgroundState();
+}
+
+class _TopBackgroundState extends State<TopBackground> {
+  String? topicTitle = "Günün Konusu Henüz Belirlenmedi!";
+  String? selectedDate = "";
+  SharedPreferences? prefs;
+  Future<void> getLocalData() async {
+    prefs = await SharedPreferences.getInstance();
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    Future<void>.delayed(Duration.zero, () async {
+      prefs = await SharedPreferences.getInstance();
+      // prefs artik kullanilabilir
+    });
+    getTopic();
+    topicTitle;
+  }
+
+  // Obtain shared preferences.
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (topicTitle == "Günün Konusu Henüz Belirlenmedi!") {
+      selectedDate = Provider.of<DateProvider>(context).selectedDate;
+      if (selectedDate != null) {
+        getTopic();
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     double width = MediaQuery.of(context).size.width;
     double height = MediaQuery.of(context).size.height;
-    AuthService _authService = AuthService();
+    AuthService authService = AuthService();
+    FirestoreService firestoreService = FirestoreService();
     TextEditingController title = TextEditingController();
-    bool a;
     Kullanicilar? kullanici =
         Provider.of<KullaniciProvider>(context).kullanicilar;
     bool isAdmin = kullanici?.role ?? true;
-
     return Stack(
       children: [
         Container(
@@ -53,7 +91,7 @@ class TopBackground extends StatelessWidget {
                 ),
                 IconButton(
                     onPressed: () {
-                      _authService.signOut(context);
+                      authService.signOut(context);
                     },
                     icon: const Icon(
                       Icons.logout,
@@ -63,26 +101,45 @@ class TopBackground extends StatelessWidget {
             ),
           ),
         ),
-
         isAdmin ? konuField(title) : gununKonusuText(),
-        isAdmin ? konuField(title) : variableKonuText()
+        isAdmin ? konuField(title) : variableKonuText(),
         //  konuField(title),
       ],
     );
   }
 
-  Padding variableKonuText() {
-    return const Padding(
-      padding: EdgeInsets.only(top: 70, left: 15),
-      child: Align(
-        alignment: Alignment.centerLeft,
-        child: Text(
-          " topic",
-          style: TextStyle(
-              color: Colors.black, fontSize: 40, fontWeight: FontWeight.w900),
+  Future<void> getTopic() async {
+    if (selectedDate != null && selectedDate!.isNotEmpty) {
+      final snapshot = await FirestoreService().getTopics(selectedDate!);
+      if (snapshot.exists) {
+        var topicData = snapshot.data() as Map<String, dynamic>;
+        setState(() {
+          topicTitle = topicData['title'];
+          print("ARTIK YAZ ŞUNU BİLADER : $topicTitle");
+        });
+      }
+    }
+  }
+
+  SingleChildRenderObjectWidget variableKonuText() {
+    String? temp = prefs?.getString('daily_topic');
+    if (temp != null) {
+      return Padding(
+        padding: const EdgeInsets.only(top: 70, left: 15),
+        child: Align(
+          alignment: Alignment.centerLeft,
+          child: Text(
+            temp,
+            style: const TextStyle(
+                color: Colors.black, fontSize: 40, fontWeight: FontWeight.w900),
+          ),
         ),
-      ),
-    );
+      );
+    } else {
+      // Eğer temp null ise, bir yerde hata olduğunu ve bunu düzeltmeniz gerektiğini belirten bir Widget döndürebilirsiniz.
+      return const SizedBox
+          .shrink(); // Boş bir widget döndürmek için kullanabilirsiniz.
+    }
   }
 
   Padding gununKonusuText() {
@@ -97,6 +154,10 @@ class TopBackground extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  Future<void> _saveDailyTopic(String topic) async {
+    await prefs?.setString('daily_topic', topic);
   }
 
   Padding konuField(TextEditingController title) {
@@ -118,6 +179,15 @@ class TopBackground extends StatelessWidget {
               color: Colors.black,
             ),
           ),
+          onSubmitted: (title) {
+            FirestoreService firestoreService = FirestoreService();
+            firestoreService.titleRecord(title, context);
+            DateTime nowa = DateTime.now().toLocal();
+            print("TR ŞEKLİ TARİH BİLADER: $nowa");
+            String konuDate = nowa.toString();
+            _saveDailyTopic(title);
+            print("konu $title");
+          },
         ),
       ),
     );

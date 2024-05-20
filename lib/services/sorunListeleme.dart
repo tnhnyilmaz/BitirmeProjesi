@@ -1,13 +1,20 @@
+import 'package:bitirme_egitim_sorunlari/Provider/dateProvider.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 class FirestoreService {
   static int sayac = 2;
 
   // Sorunları aldığımız ekrandaki verilerimizi firestore database'ye kaydetmek için kullandığımız method
 
-  Future<QuerySnapshot<Map<String, dynamic>>> getSorunlar() async {
+  Future<QuerySnapshot<Map<String, dynamic>>> getSorunlar(String konu) async {
     // Firestore'dan sorunları al ve QuerySnapshot'ı döndür
-    return await FirebaseFirestore.instance.collection("sorunlar").get();
+    return await FirebaseFirestore.instance
+        .collection("topics")
+        .doc(konu)
+        .collection("sorunlar")
+        .get();
   }
 
   Future<QuerySnapshot<Map<String, dynamic>>> getIDCozum(String sorunId) async {
@@ -16,6 +23,18 @@ class FirestoreService {
         .doc(sorunId)
         .collection("cozumler")
         .get();
+  }
+
+  Future<void> addSorunTopics(
+      String konu, String kullaniciID, String sorunMetni) async {
+    DocumentReference konuRef =
+        FirebaseFirestore.instance.collection("topics").doc(konu);
+
+    await konuRef.collection("sorunlar").add({
+      "kullaniciID": kullaniciID,
+      "sorunMetni": sorunMetni,
+      "timestamp": Timestamp.now()
+    });
   }
 
   Future<void> addSorun(String kullaniciID, String sorunMetni) async {
@@ -29,6 +48,40 @@ class FirestoreService {
       "sorunMetni": sorunMetni,
       'timestamp': Timestamp.now()
     });
+  }
+
+  Future<void> titleRecord(String title, BuildContext context) async {
+    final userCollection = FirebaseFirestore.instance.collection("topics");
+    DateTime nowa = DateTime.now().toLocal();
+    print("TR ŞEKLİ TARİH BİLADER: $nowa");
+    String konuDate = nowa.toString();
+    Provider.of<DateProvider>(context, listen: false).setDate(konuDate);
+    await userCollection.doc(konuDate).set({"title": title, "date": konuDate});
+  }
+
+  // Future<List<Map<String, dynamic>>> getTopicsBySelectedDate(
+  //     BuildContext context) async {
+  //   final userCollection = FirebaseFirestore.instance.collection("topics");
+  //   String? selectedDate =
+  //       Provider.of<DateProvider>(context, listen: false).selectedDate;
+  //   QuerySnapshot querySnapshot =
+  //       await userCollection.where("date", isEqualTo: selectedDate).get();
+  // }
+  Future<String> getDailyTopic(String date) async {
+    FirebaseFirestore firestore = FirebaseFirestore.instance;
+    final snapshot = await firestore.collection('topics').doc(date).get();
+    if (snapshot.exists) {
+      var topicData = snapshot.data() as Map<String, dynamic>;
+      return topicData['title'];
+    }
+    return "";
+  }
+
+  Future<DocumentSnapshot> getTopics(String selectedDate) async {
+    return await FirebaseFirestore.instance
+        .collection("topics")
+        .doc(selectedDate)
+        .get();
   }
 
   Future<List<Map<String, dynamic>>> getCozum(String sorunID) async {

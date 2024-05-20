@@ -42,8 +42,9 @@ dependencies:
   firebase_auth: ^4.15.3
   fluttertoast: ^8.2.4
   fuzzywuzzy: ^1.1.6
-  text_similarity: ^1.0.1
-  string_similarity: ^2.0.0
+  shared_preferences: ^2.2.2
+  intl: ^0.19.0
+
 
 dev_dependencies:
   flutter_test:

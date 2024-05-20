@@ -1,5 +1,6 @@
 import 'package:bitirme_egitim_sorunlari/Provider/AuthProvider.dart';
 import 'package:bitirme_egitim_sorunlari/Provider/SorunProvider.dart';
+import 'package:bitirme_egitim_sorunlari/Provider/dateProvider.dart';
 import 'package:bitirme_egitim_sorunlari/firebase_options.dart';
 import 'package:bitirme_egitim_sorunlari/screens/InputSorunCozum.dart';
 import 'package:bitirme_egitim_sorunlari/screens/anaEkran.dart';
@@ -36,6 +37,7 @@ class MyApp extends StatelessWidget {
       providers: [
         ChangeNotifierProvider(create: (context) => SelectedSorunProvider()),
         ChangeNotifierProvider(create: (context) => KullaniciProvider()),
+        ChangeNotifierProvider(create: (context) => DateProvider())
         // Diğer provider'ları buraya ekleyebilirsiniz
       ],
       child: MaterialApp(

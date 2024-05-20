@@ -3,6 +3,7 @@
         "cozum",
         "Firestore",
         "jaccard",
+        "prefs",
         "sorunlar"
     ]
 }
