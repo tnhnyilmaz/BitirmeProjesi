@@ -1,5 +1,6 @@
 // ignore: file_names
 import 'package:bitirme_egitim_sorunlari/Provider/SorunProvider.dart';
+import 'package:bitirme_egitim_sorunlari/Provider/dateProvider.dart';
 import 'package:bitirme_egitim_sorunlari/compenents/generalAppbar.dart';
 import 'package:bitirme_egitim_sorunlari/compenents/inputTextField.dart';
 import 'package:bitirme_egitim_sorunlari/compenents/kaydetButton.dart';
@@ -8,6 +9,7 @@ import 'package:bitirme_egitim_sorunlari/screens/a.dart';
 import 'package:bitirme_egitim_sorunlari/services/sorunListeleme.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class InputSorunCozumWeb extends StatefulWidget {
   const InputSorunCozumWeb({super.key});
@@ -18,13 +20,22 @@ class InputSorunCozumWeb extends StatefulWidget {
 
 class _InputSorunCozumWebState extends State<InputSorunCozumWeb> {
   TextEditingController cozum1 = TextEditingController();
-  TextEditingController cozum2 = TextEditingController();
-  TextEditingController cozum3 = TextEditingController();
+  String? a = "";
+  SharedPreferences? prefs;
+  String? selectedDate;
+  Future<void> getLocalData() async {
+    prefs = await SharedPreferences.getInstance();
+  }
 
   @override
   void initState() {
     super.initState();
-    _getCozumler();
+    Provider.of<DateProvider>(context, listen: false).loadSelectedDate();
+    Future<void>.delayed(Duration.zero, () async {
+      prefs = await SharedPreferences.getInstance();
+      // prefs artık kullanılabilir
+    });
+    a;
   }
 
   void _getCozumler() async {
@@ -51,6 +62,15 @@ class _InputSorunCozumWebState extends State<InputSorunCozumWeb> {
 
   @override
   Widget build(BuildContext context) {
+    selectedDate = Provider.of<DateProvider>(context).selectedDate;
+
+    if (selectedDate != null) {
+      _saveDailyTopic(selectedDate!);
+      // selectedDate'i kullan
+      a = selectedDate;
+      print("KARDEŞİMSİN BU AAA VALALHİ  : " + selectedDate!);
+      _saveDailyTopic(a!);
+    }
     StyleTextProject styleTextProject = StyleTextProject();
     SorunModel? selectedSorun =
         Provider.of<SelectedSorunProvider>(context, listen: false)
@@ -59,7 +79,6 @@ class _InputSorunCozumWebState extends State<InputSorunCozumWeb> {
     double height = MediaQuery.of(context).size.height;
     String selectedSorunID = selectedSorun!.documentID!;
     print("select: ${selectedSorunID}");
-
     return Scaffold(
         appBar: GeneralAppBar(
             styleTextProject: styleTextProject, title: "Sorun Çöz"),
@@ -102,8 +121,18 @@ class _InputSorunCozumWebState extends State<InputSorunCozumWeb> {
                       KaydetButton(
                         text: "Çözümleri Kaydet",
                         onPressed: () {
-                          _addToFirestore(cozum1.text, cozum2.text, cozum3.text,
-                              selectedSorunID);
+                          _addToFirestore(cozum1.text, selectedSorunID);
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content:
+                                  Text('İşlem başarıyla gerçekleştirildi.'),
+                              duration: Duration(seconds: 3),
+                              elevation: 10,
+                              backgroundColor: Colors.green.withOpacity(0.5),
+                              shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(10)),
+                            ),
+                          );
                         },
                       ),
                     ],
@@ -115,10 +144,33 @@ class _InputSorunCozumWebState extends State<InputSorunCozumWeb> {
         ));
   }
 
-  void _addToFirestore(String s1, String s2, String s3, String sorunID) {
+  Future<void> _saveDailyTopic(String topic) async {
+    await prefs?.setString("selectedDate", topic);
+  }
+
+  Future<void> _saveTopic(String topic) async {
+    await prefs?.setString("date", topic);
+  }
+
+  void _addToFirestore(String s1, String sorunID) {
     String kullaniciID = "2";
+    //String? temp = prefs?.getString("selectedDate");
+    print("AAAAAAAAAA1111111111111111: " + a!);
+    if (a == "") {
+      String? temp = prefs?.getString("date");
+      if (temp != null) {
+        a = temp;
+      } else {
+        return;
+      }
+      a = temp;
+      print("boş geliypr kardeşşş");
+    } else {
+      print("sıkıntı etmemek gerekir");
+      _saveTopic(a!);
+    }
     // FirestoreService sınıfını kullanarak Firestore'a ekleme işlemi
-    FirestoreService().addToCozum(kullaniciID, s1, sorunID);
+    FirestoreService().addToCozum(kullaniciID, s1, sorunID, a!);
 
     // Ekleme işleminden sonra text alanlarını temizle
     cozum1.clear();

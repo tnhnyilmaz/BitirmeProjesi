@@ -1,6 +1,8 @@
+import 'package:bitirme_egitim_sorunlari/Provider/AuthProvider.dart';
 import 'package:bitirme_egitim_sorunlari/const/textStyle.dart';
 import 'package:bitirme_egitim_sorunlari/services/auth_Service.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 class RegisterScreenWeb extends StatefulWidget {
   RegisterScreenWeb({super.key});
@@ -21,6 +23,8 @@ class _RegisterScreenWebState extends State<RegisterScreenWeb> {
 
   @override
   Widget build(BuildContext context) {
+    String? userId =
+        Provider.of<KullaniciProvider>(context, listen: false).userId;
     return Scaffold(
       body: SingleChildScrollView(
         child: Container(
@@ -57,12 +61,8 @@ class _RegisterScreenWebState extends State<RegisterScreenWeb> {
                         topRight: Radius.circular(40)),
                   ),
                   child: Padding(
-                    padding: const EdgeInsets.all(24.0),
-                    child: Padding(
-                      padding: const EdgeInsets.only(left: 150, right: 150),
-                      child: mailPasswordField(context),
-                    ),
-                  ),
+                      padding: const EdgeInsets.all(24.0),
+                      child: mailPasswordField(context)),
                 ),
               )
             ],
@@ -140,7 +140,8 @@ class _RegisterScreenWebState extends State<RegisterScreenWeb> {
           ),
           TextField(
             controller: passwordCont,
-            keyboardType: TextInputType.visiblePassword,
+            obscureText: _obscureText,
+            keyboardType: TextInputType.emailAddress,
             decoration: InputDecoration(
                 border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(8),
@@ -208,9 +209,65 @@ class _RegisterScreenWebState extends State<RegisterScreenWeb> {
             decoration: BoxDecoration(borderRadius: BorderRadius.circular(8)),
             child: ElevatedButton(
                 onPressed: () {
-                  // _authService.signUp(nameCont.text, lastnameCont.text,
-                  //     passwordCont.text, emailCont.text, false, context);
-                  Navigator.pushNamed(context, "/");
+                  if (nameCont.text.isEmpty ||
+                      lastnameCont.text.isEmpty ||
+                      emailCont.text.isEmpty ||
+                      passwordCont.text.isEmpty) {
+                    showDialog(
+                      context: context,
+                      builder: (BuildContext context) {
+                        return AlertDialog(
+                          title: const Text("Hata!"),
+                          content: const Text("Lütfen tüm alanları doldurun."),
+                          alignment: Alignment.center,
+                          actions: <Widget>[
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              mainAxisAlignment: MainAxisAlignment.start,
+                              children: [
+                                TextButton(
+                                  onPressed: () {
+                                    Navigator.pop(context); // Dialog'u kapat
+                                  },
+                                  child: Text(
+                                    "Tamam",
+                                    style: styleTextProject.loginText,
+                                    textAlign: TextAlign.center,
+                                  ),
+                                ),
+                              ],
+                            )
+                          ],
+                        );
+                      },
+                    );
+                  } else {
+                    _authService.signUp(nameCont.text, lastnameCont.text,
+                        passwordCont.text, emailCont.text, false, context);
+                    showDialog(
+                      context: context,
+                      builder: (BuildContext context) {
+                        return AlertDialog(
+                          title: const Text("Başarılı!"),
+                          content: const Text("Başarıyla kayıt oldunuz!"),
+                          actions: <Widget>[
+                            TextButton(
+                              onPressed: () {
+                                Navigator.pop(context); // Dialog'u kapat
+                                Navigator.pushNamed(context, "/");
+                              },
+                              child: Text(
+                                "Giriş Yap",
+                                style: styleTextProject.loginText,
+                              ),
+                            ),
+                          ],
+                        );
+                      },
+                    );
+                  }
+
+                  //Navigator.pushNamed(context, "/");
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.amber,

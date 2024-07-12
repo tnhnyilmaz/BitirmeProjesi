@@ -29,16 +29,13 @@ void main() async {
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
-
-  // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
     return MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (context) => SelectedSorunProvider()),
         ChangeNotifierProvider(create: (context) => KullaniciProvider()),
-        ChangeNotifierProvider(create: (context) => DateProvider())
-        // Diğer provider'ları buraya ekleyebilirsiniz
+        ChangeNotifierProvider(create: (context) => DateProvider()),
       ],
       child: MaterialApp(
         debugShowCheckedModeBanner: false,

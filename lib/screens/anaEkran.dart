@@ -92,12 +92,12 @@ class AnaEkran extends StatelessWidget {
             ),
             SizedBox(height: 10),
             Text(
-              "Temel hedefimiz, kullanıcılarımıza çeşitli eğitim konularında karşılaştığı sorunları birlikte belirleyip çözebilmeleri için bir platform sağlamayı hedefliyoruz.",
+              "Çalıştay Günlüğü, kullanıcıların günlük olarak belirlenen konular üzerinden sorunlarını paylaşarak ve çözüm önerileri sunarak işbirliği yapmalarını amaçlar.",
               style: TextStyle(fontSize: 12, fontWeight: FontWeight.w500),
             ),
             SizedBox(height: 10),
             Text(
-              "Sorunlarını paylaşan kullanıcılarımıza, topluluk içinde çözüm önerilerini sağlayan kullanıcılarımız tarafından gerekli merciiler tarafından etkileşime geçmek.",
+              "Platform, toplulukların ortak sorunlarına kolektif çözümler üretmelerine ve bu çözümler üzerinde etkileşimde bulunmalarına olanak tanır. Bu sayede kullanıcılar, daha etkili ve yaratıcı çözüm yolları bularak günlük yaşamda karşılaştıkları sorunları gidermeye çalışır.",
               style: TextStyle(fontSize: 12, fontWeight: FontWeight.w500),
             ),
           ],

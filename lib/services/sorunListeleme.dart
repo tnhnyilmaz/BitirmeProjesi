@@ -5,9 +5,7 @@ import 'package:provider/provider.dart';
 
 class FirestoreService {
   static int sayac = 2;
-
-  // Sorunları aldığımız ekrandaki verilerimizi firestore database'ye kaydetmek için kullandığımız method
-
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   Future<QuerySnapshot<Map<String, dynamic>>> getSorunlar(String konu) async {
     // Firestore'dan sorunları al ve QuerySnapshot'ı döndür
     return await FirebaseFirestore.instance
@@ -84,29 +82,28 @@ class FirestoreService {
         .get();
   }
 
-  Future<List<Map<String, dynamic>>> getCozum(String sorunID) async {
-    try {
-      QuerySnapshot<Map<String, dynamic>> querySnapshot =
-          await FirebaseFirestore.instance
-              .collection("sorunlar")
-              .doc(sorunID)
-              .collection("cozumler")
-              .get();
+  Future<List<Map<String, dynamic>>> getCozum(
+      String sorunID, String konu) async {
+    QuerySnapshot querySnapshot = await _firestore
+        .collection("topics")
+        .doc(konu)
+        .collection("sorunlar")
+        .doc(sorunID)
+        .collection("cozumler")
+        .get();
 
-      return querySnapshot.docs
-          .map<Map<String, dynamic>>(
-              (doc) => doc.data() as Map<String, dynamic>)
-          .toList();
-    } catch (e) {
-      // Hata durumunda burada işlemler yapabilirsiniz.
-      print("getCozum Hatası: $e");
-      return []; // Boş liste veya isteğe bağlı başka bir değer dönebilirsiniz.
-    }
+    return querySnapshot.docs.map<Map<String, dynamic>>((doc) {
+      Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
+      data['documentID'] = doc.id; // Belge ID'sini ekle
+      return data;
+    }).toList();
   }
 
-  Future<void> addToCozum(
-      String kullaniciId, String cozumMetni, String sorunID) async {
+  Future<void> addToCozum(String kullaniciId, String cozumMetni, String sorunID,
+      String konu) async {
     final docSorun = FirebaseFirestore.instance
+        .collection("topics")
+        .doc(konu)
         .collection("sorunlar")
         .doc(sorunID)
         .collection("cozumler");
@@ -114,8 +111,9 @@ class FirestoreService {
       await docSorun.add({
         'kullaniciID': kullaniciId,
         'cozumMetni': cozumMetni,
-        'sorunID': sorunID
+        'sorunID': sorunID,
       });
+
       sayac++;
     } catch (e) {
       // Hata durumunda bir şeyler yapabilirsiniz.
@@ -154,5 +152,78 @@ class FirestoreService {
     return querySnapshot.docs
         .map<Map<String, dynamic>>((doc) => doc.data() as Map<String, dynamic>)
         .toList();
+  }
+
+  Future<void> likeCozum(
+      String cozumID, String userID, String sorunID, String konu) async {
+    await _firestore
+        .collection("topics")
+        .doc(konu)
+        .collection("sorunlar")
+        .doc(sorunID)
+        .collection("cozumler")
+        .doc(cozumID)
+        .collection("liked")
+        .doc(userID)
+        .set({
+      'likedAt': userID,
+    });
+  }
+
+  Future<void> unlikeCozum(
+      String cozumID, String userID, String sorunID, String konu) async {
+    await _firestore
+        .collection("topics")
+        .doc(konu)
+        .collection("sorunlar")
+        .doc(sorunID)
+        .collection("cozumler")
+        .doc(cozumID)
+        .collection("liked")
+        .doc(userID)
+        .delete();
+  }
+
+  Future<List<String>> getUserLikedCozumler(String cozumID, String userID,
+      String sorunID, String konu, String kullaniciID) async {
+    try {
+      // Firestore'dan kullanıcının beğendiği çözümleri al
+      QuerySnapshot<Map<String, dynamic>> querySnapshot = await _firestore
+          .collection("topics")
+          .doc(konu)
+          .collection("sorunlar")
+          .doc(sorunID)
+          .collection("cozumler")
+          .doc(cozumID)
+          .collection("liked")
+          .where('kullaniciID', isEqualTo: kullaniciID)
+          .get();
+
+      // Alınan belgeleri işle ve beğenilen çözüm ID'lerini bir listeye ekle
+      List<String> likedCozumler = [];
+      querySnapshot.docs.forEach((doc) {
+        likedCozumler.add(doc['cozumID']);
+      });
+
+      return likedCozumler;
+    } catch (e) {
+      print("getUserLikedCozumler Error: $e");
+      return [];
+    }
+  }
+
+  Future<bool> isCozumLiked(
+      String cozumID, String userID, String sorunID, String konu) async {
+    DocumentSnapshot doc = await _firestore
+        .collection("topics")
+        .doc(konu)
+        .collection("sorunlar")
+        .doc(sorunID)
+        .collection("cozumler")
+        .doc(cozumID)
+        .collection("liked")
+        .doc(userID)
+        .get();
+    return doc.exists;
   }
 }

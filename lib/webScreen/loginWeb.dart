@@ -1,6 +1,8 @@
+import 'package:bitirme_egitim_sorunlari/Provider/AuthProvider.dart';
 import 'package:bitirme_egitim_sorunlari/const/textStyle.dart';
 import 'package:bitirme_egitim_sorunlari/services/auth_Service.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 class LoginWeb extends StatefulWidget {
   const LoginWeb({super.key});
@@ -130,9 +132,35 @@ class _LoginWebState extends State<LoginWeb> {
             width: double.infinity,
             decoration: BoxDecoration(borderRadius: BorderRadius.circular(8)),
             child: ElevatedButton(
-                onPressed: () {
-                  authService.signIn(
-                      emailCont.text, passwordCont.text, context);
+                onPressed: () async {
+                  if (emailCont.text.isEmpty || passwordCont.text.isEmpty) {
+                    showDialog(
+                        context: context,
+                        builder: (BuildContext context) {
+                          return AlertDialog(
+                            title: const Text("HATA!"),
+                            content: Text("Lütfen Tüm Alanları Doldurunuz!"),
+                            actions: <Widget>[
+                              TextButton(
+                                onPressed: () {
+                                  Navigator.pop(context); // Dialog'u kapat
+                                  Navigator.pushNamed(context, "/");
+                                },
+                                child: const Text(
+                                  "Tamam",
+                                ),
+                              ),
+                            ],
+                          );
+                        });
+                  } else {
+                    authService
+                        .signIn(emailCont.text, passwordCont.text, context)
+                        .then((kullanici) {
+                      Provider.of<KullaniciProvider>(context, listen: false)
+                          .setUser(kullanici!);
+                    });
+                  }
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.amber,
@@ -143,6 +171,7 @@ class _LoginWebState extends State<LoginWeb> {
                 )),
           ),
           Align(
+            alignment: Alignment.bottomCenter,
             child: TextButton(
                 onPressed: () {
                   Navigator.pushNamed(context, '/Register');
@@ -151,7 +180,6 @@ class _LoginWebState extends State<LoginWeb> {
                   "Hesabınız Yok mu? Kayıt Ol!",
                   style: styleText.loginText,
                 )),
-            alignment: Alignment.bottomCenter,
           )
         ]);
   }
@@ -180,7 +208,7 @@ class _LoginWebState extends State<LoginWeb> {
           height: 5,
         ),
         Text(
-          "Eğitimde Yeni Yolculuklar,\nSorunları Birlikte Çöz!",
+          "Sorun ve çözümlerde pay sahibi ol!,\nSorunları Birlikte Çöz!",
           style: TextStyle(
             color: Colors.white,
             fontSize: 22,

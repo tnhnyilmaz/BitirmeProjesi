@@ -54,16 +54,16 @@ class _SorunInputState extends State<SorunInput> {
     selectedDate = Provider.of<DateProvider>(context).selectedDate;
 
     if (selectedDate != null) {
-      _saveDailyTopic(selectedDate!);
       // selectedDate'i kullan
       a = selectedDate;
       print("KARDEŞİMSİN BU AAA VALALHİ  : " + selectedDate!);
       _saveDailyTopic(a!);
     }
+
     id = kullanici!.id;
     return Scaffold(
       appBar: GeneralAppBar(
-          styleTextProject: styleTextProject, title: "Eğitim Sorunları"),
+          styleTextProject: styleTextProject, title: "Sorun Belirt"),
       body: SingleChildScrollView(
         child: Padding(
             padding: const EdgeInsets.all(8.0),
@@ -81,7 +81,7 @@ class _SorunInputState extends State<SorunInput> {
                         crossAxisAlignment: WrapCrossAlignment.center,
                         children: [
                           const Text(
-                            "Eğitimde olan sorunları aşağıda bulunan bölmelere maddeler halinde giriniz.",
+                            "Sorunları aşağıda bulunan bölmelere maddeler halinde giriniz.",
                             style: const TextStyle(fontSize: 15),
                           ),
                           InputTextField(

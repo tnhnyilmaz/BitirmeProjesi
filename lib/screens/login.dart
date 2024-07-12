@@ -130,12 +130,34 @@ class _LoginState extends State<Login> {
             decoration: BoxDecoration(borderRadius: BorderRadius.circular(8)),
             child: ElevatedButton(
                 onPressed: () async {
-                  authService
-                      .signIn(emailCont.text, passwordCont.text, context)
-                      .then((kullanici) {
-                    Provider.of<KullaniciProvider>(context, listen: false)
-                        .setUser(kullanici!);
-                  });
+                  if (emailCont.text.isEmpty || passwordCont.text.isEmpty) {
+                    showDialog(
+                        context: context,
+                        builder: (BuildContext context) {
+                          return AlertDialog(
+                            title: const Text("HATA!"),
+                            content: Text("Lütfen Tüm Alanları Doldurunuz!"),
+                            actions: <Widget>[
+                              TextButton(
+                                onPressed: () {
+                                  Navigator.pop(context); // Dialog'u kapat
+                                  Navigator.pushNamed(context, "/");
+                                },
+                                child: const Text(
+                                  "Tamam",
+                                ),
+                              ),
+                            ],
+                          );
+                        });
+                  } else {
+                    authService
+                        .signIn(emailCont.text, passwordCont.text, context)
+                        .then((kullanici) {
+                      Provider.of<KullaniciProvider>(context, listen: false)
+                          .setUser(kullanici!);
+                    });
+                  }
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.amber,
@@ -146,6 +168,7 @@ class _LoginState extends State<Login> {
                 )),
           ),
           Align(
+            alignment: Alignment.bottomCenter,
             child: TextButton(
                 onPressed: () {
                   Navigator.pushNamed(context, '/Register');
@@ -154,7 +177,6 @@ class _LoginState extends State<Login> {
                   "Hesabınız Yok mu? Kayıt Ol!",
                   style: styleText.loginText,
                 )),
-            alignment: Alignment.bottomCenter,
           )
         ]);
   }
@@ -183,7 +205,7 @@ class _LoginState extends State<Login> {
           height: 5,
         ),
         Text(
-          "Eğitimde Yeni Yolculuklar,\nSorunları Birlikte Çöz!",
+          "Sorun ve çözümlerde pay sahibi ol!,\nSorunları Birlikte Çöz!",
           style: TextStyle(
             color: Colors.white,
             fontSize: 22,

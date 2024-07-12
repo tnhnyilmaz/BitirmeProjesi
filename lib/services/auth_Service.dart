@@ -26,13 +26,9 @@ class AuthService {
 
   Future<void> registerUser(String name, String lastname, String password,
       String email, String userId, bool role) async {
-    await userCollection.doc(userId).set({
-      "email": email,
-      "password": password,
-      "isim": name,
-      "soyisim": lastname,
-      "role": role
-    });
+    await userCollection
+        .doc(userId)
+        .set({"email": email, "isim": name, "soyisim": lastname, "role": role});
   }
 
   Future<Kullanicilar> getUserData(String userId) async {
