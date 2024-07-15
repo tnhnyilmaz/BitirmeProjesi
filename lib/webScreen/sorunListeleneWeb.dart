@@ -77,9 +77,8 @@ class _SorunListelemeWebState extends State<SorunListelemeWeb> {
     await prefs?.setString("date", topic);
   }
 
-//AIzaSyAWyt6AXnEkSpFCcr9gtGJKVXJEqRJ0ZvA
   Future<void> _sendIssuesToGemini(String issues) async {
-    const apiKey = 'AIzaSyAWyt6AXnEkSpFCcr9gtGJKVXJEqRJ0ZvA';
+    const apiKey = 'YOUR-API-KEY';
     final url = Uri.parse('https://api.gemini.com/v1/completions');
     if (apiKey == null) {
       print('No \$API_KEY environment variable');
